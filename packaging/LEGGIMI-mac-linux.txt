@@ -1,0 +1,10 @@
+SUPERTELEMURGIA: LA LEGGENDA DELLO SCIACQUONE — Mac, Linux, Chromebook
+
+COME SI GIOCA
+1. Estrai lo zip.
+2. Doppio clic su SuperTeleMurgia.html: si apre nel browser (Safari, Chrome, Firefox).
+3. Clic una volta su «Nuova partita» per far partire la musica.
+Il gioco salva da solo nel browser.
+
+HOW TO PLAY (English)
+Extract the zip and double-click SuperTeleMurgia.html. It opens in your browser. The game is in Italian.

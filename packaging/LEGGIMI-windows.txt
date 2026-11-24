@@ -1,0 +1,16 @@
+SUPERTELEMURGIA: LA LEGGENDA DELLO SCIACQUONE — Windows 10/11
+
+COME SI GIOCA
+1. Estrai questa cartella (tasto destro sullo zip > Estrai tutto).
+2. Doppio clic su SuperTeleMurgia.exe.
+3. Se compare la schermata blu «Windows ha protetto il PC»:
+   clicca «Ulteriori informazioni» e poi «Esegui comunque».
+   Succede con tutti i giochi indipendenti non firmati. Il gioco non installa niente.
+4. Il gioco si apre a tutto schermo. Clic per camminare, scegli un verbo, clicca sugli oggetti.
+   Bloccato? Premi «Anna» in basso a destra.
+
+Il gioco salva da solo. Funziona anche senza internet.
+
+HOW TO PLAY (English)
+Extract the zip, double-click SuperTeleMurgia.exe. If Windows shows "Windows protected your PC",
+click "More info" then "Run anyway". The game is in Italian.
