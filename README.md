@@ -1,2 +1,2 @@
 # STM
-Point and click videogame
+Scarica ed estrai l'archivio zip
