@@ -10,7 +10,7 @@ Outputs (all generated, not committed):
   desktop/game/index.html  Steam / Electron build (bundled offline fonts)
   launcher/game.html       page embedded in the lightweight Windows .exe
 """
-import pathlib
+import os, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / 'game' / 'src'
@@ -26,8 +26,19 @@ def wrap(js):
     return "'use strict';\n{\n" + js + "\n}"
 
 
+SITE_URL = os.environ.get('SITE_URL', '').rstrip('/')
+SITE_TAGS = '' if not SITE_URL else (
+    f'<meta property="og:title" content="SuperTeleMurgia: La Leggenda dello Sciacquone">\n'
+    f'<meta property="og:description" content="Sciacquone il Pagliaccione contro il Clan dei Pallonari. Gioca gratis nel browser.">\n'
+    f'<meta property="og:image" content="{SITE_URL}/og.png">\n<meta property="og:url" content="{SITE_URL}/">\n<meta property="og:type" content="website">\n'
+    f'<meta name="twitter:card" content="summary_large_image">\n'
+    f'<link rel="manifest" href="manifest.webmanifest">\n<link rel="icon" href="icon-192.png">\n<link rel="apple-touch-icon" href="icon-192.png">\n'
+    f'<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n'
+    f'<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">')
+
+
 def page(js, local_fonts=False, demo=False):
-    html = shell
+    html = shell.replace('<!--SITE-->', SITE_TAGS if not local_fonts else '')
     if local_fonts:
         start = html.index('<link rel="preconnect"')
         end = html.index('rel="stylesheet">') + len('rel="stylesheet">')

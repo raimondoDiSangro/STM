@@ -64,6 +64,11 @@ The test plays the full game (all four acts, Santeramo and the good ending) and 
 
 > GitHub Pages is free for **public** repositories. A public repository also makes the full source code visible, so anyone could build the full game. To sell the game, keep this repository private (Pages on private repos needs a paid GitHub plan), or create a second public repository that only contains `dist/demo/index.html`.
 
+### Easier to share
+- Shared on WhatsApp, Instagram, Facebook or X, the Pages link shows a preview card with the game's art (`web/og.png`).
+- On phones, players can tap **Share → Add to Home Screen**: the game gets its own icon and opens full screen like an app (`web/manifest.webmanifest`).
+- Held upright, phones show a "turn your phone" screen; the game is played in landscape.
+
 ## Downloads and releases
 
 `.github/workflows/build.yml` runs on every push and builds, in the cloud:

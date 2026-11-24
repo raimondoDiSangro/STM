@@ -37,11 +37,16 @@ jobs:
         with:
           python-version: '3.12'
       - name: Build the game
-        run: python game/build.py
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          REPO="${{ github.event.repository.name }}"
+          export SITE_URL="https://${OWNER}.github.io/${REPO}"
+          python game/build.py
       - name: Pick the version to publish
         run: |
           mkdir -p site
           cp dist/${PAGES_VERSION}/index.html site/index.html
+          cp web/* site/
           touch site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
