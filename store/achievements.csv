@@ -1,0 +1,15 @@
+API Name,Display Name (IT),Description (IT),Display Name (EN),Description (EN),Icon,Locked icon,Hidden
+ACH_SCARICO,Scarico Perfetto,Usa Sciacqua 50 volte,Perfect Flush,Use Flush 50 times,achievements/scarico.png,achievements/scarico_locked.png,0
+ACH_SANTERAMO,Santeramo,Prova ad andare a Santeramo 5 volte,Santeramo,Try to travel to Santeramo 5 times,achievements/santeramo.png,achievements/santeramo_locked.png,1
+ACH_ESTATE,Entro l'Estate Prossima,Fatti promettere tutto dal sindaco 3 volte,By Next Summer,Get 3 promises out of the mayor,achievements/estate.png,achievements/estate_locked.png,0
+ACH_ECOLOGISTA,Ecologista,Ripulisci la pineta,Eco Warrior,Clean up the pine forest,achievements/ecologista.png,achievements/ecologista_locked.png,0
+ACH_CUGINO,Tengo nu Cugggino,Fatti aiutare dal cugino di Santino,I Got a Cousin,Get help from Santino's cousin,achievements/cugino.png,achievements/cugino_locked.png,0
+ACH_MATERA,"Matera, right?",Riporta il ponte a Gravina,"Matera, right?",Bring the bridge home to Gravina,achievements/matera.png,achievements/matera_locked.png,0
+ACH_FERROVIERE,Ferroviere,Fai arrivare il treno a Gravina,Railwayman,Get a train to Gravina,achievements/ferroviere.png,achievements/ferroviere_locked.png,0
+ACH_EMIGRANTE,Emigrante,Ottieni il finale amaro,Emigrant,Reach the bitter ending,achievements/emigrante.png,achievements/emigrante_locked.png,1
+ACH_INAUGURAZIONE,Inaugurazione,Scopri quante volte è stata inaugurata la rotonda,Grand Opening,Find out how many times the roundabout was opened,achievements/inaugurazione.png,achievements/inaugurazione_locked.png,0
+ACH_PANE,Duellante del Pane,Vinci il duello di pane,Bread Duelist,Win the bread duel,achievements/pane.png,achievements/pane_locked.png,0
+ACH_FINE,La Leggenda dello Sciacquone,Sconfiggi Don Pallone,The Legend of the Flush,Defeat Don Pallone,achievements/fine.png,achievements/fine_locked.png,0
+ACH_CAMERIERE,Cameriere di Gala,Infiltrati alla cena sul Ponte Acquedotto,Gala Waiter,Sneak into the dinner on the aqueduct bridge,achievements/cameriere.png,achievements/cameriere_locked.png,0
+ACH_SPELEOLOGO,Speleologo,Scendi nelle grotte sotto la Fiera,Caver,Go down into the caves under the fair,achievements/speleologo.png,achievements/speleologo_locked.png,0
+ACH_SANTERAMO2,Santeramo esiste davvero,Raggiungi Santeramo,Santeramo Is Real,Reach Santeramo,achievements/santeramo2.png,achievements/santeramo2_locked.png,1
