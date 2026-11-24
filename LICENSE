@@ -1,0 +1,13 @@
+SuperTeleMurgia: La Leggenda dello Sciacquone
+Copyright (c) 2026 Vincenzo Martemucci. All rights reserved.
+
+The source code, story, characters, dialogue, art and music of this game are the property
+of the author. You may play the game and read this repository. You may not copy, modify,
+redistribute or sell the game or any part of it without written permission from the author.
+
+Third-party material:
+- Bitter and Fira Sans fonts (desktop/game/fonts) — SIL Open Font License 1.1, see the OFL files in that folder.
+- Alegreya Sans and Eczar fonts — loaded from Google Fonts, SIL Open Font License 1.1.
+- steamworks.js, Electron and electron-builder are installed at build time under their own licenses.
+
+This is satire and pure fiction. Any resemblance to real people or events is coincidental.
