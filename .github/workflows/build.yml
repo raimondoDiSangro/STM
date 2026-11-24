@@ -1,0 +1,101 @@
+# Builds every version of the game in the cloud, tests it, and (on a version tag) publishes a Release.
+#   Push to main        -> build + test, files available under Actions -> run -> Artifacts
+#   git tag v1.0.0 && git push --tags -> also creates a GitHub Release with the downloads attached
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  web:
+    name: Web, demo and Windows launcher
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Build
+        run: python game/build.py
+      - name: Syntax check
+        run: node --check dist/dev/game.js
+      - name: Build Windows launcher (.exe)
+        working-directory: launcher
+        run: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -H windowsgui" -o SuperTeleMurgia.exe .
+      - name: Package
+        run: |
+          mkdir -p out/win out/mac
+          cp launcher/SuperTeleMurgia.exe out/win/ && cp packaging/LEGGIMI-windows.txt out/win/LEGGIMI.txt
+          cp dist/web/index.html out/mac/SuperTeleMurgia.html && cp packaging/LEGGIMI-mac-linux.txt out/mac/LEGGIMI.txt
+          (cd out/win && zip -r ../SuperTeleMurgia-Windows.zip .)
+          (cd out/mac && zip -r ../SuperTeleMurgia-Mac-Linux.zip .)
+          (cd dist/web && zip ../../out/SuperTeleMurgia-web.zip index.html)
+          (cd dist/demo && zip ../../out/SuperTeleMurgia-DEMO-web.zip index.html)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: downloads
+          path: out/*.zip
+
+  test:
+    name: Full playthrough test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python game/build.py
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - run: python tests/playthrough.py
+
+  desktop:
+    name: Steam / desktop build (Electron, Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: python game/build.py
+      - name: Build Electron app
+        working-directory: desktop
+        run: |
+          npm install
+          npm run dist:win
+      - name: Zip
+        run: Compress-Archive -Path desktop/dist/win-unpacked/* -DestinationPath SuperTeleMurgia-Steam-Windows.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: steam-windows
+          path: SuperTeleMurgia-Steam-Windows.zip
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [web, test, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: files
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: files/*.zip
+          generate_release_notes: true
