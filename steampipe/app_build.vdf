@@ -1,0 +1,19 @@
+"AppBuild"
+{
+	"AppID"	"480"
+	"Desc"	"SuperTeleMurgia build"
+	"ContentRoot"	"..\desktop\dist\"
+	"BuildOutput"	"..\steampipe\output\"
+	"Depots"
+	{
+		"481"
+		{
+			"FileMapping"
+			{
+				"LocalPath"	"win-unpacked\*"
+				"DepotPath"	"."
+				"recursive"	"1"
+			}
+		}
+	}
+}

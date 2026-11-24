@@ -1,0 +1,70 @@
+{
+  "name": "supertelemurgia",
+  "productName": "SuperTeleMurgia",
+  "version": "1.0.0",
+  "description": "SuperTeleMurgia: La Leggenda dello Sciacquone — avventura punta-e-clicca",
+  "author": "Vincenzo Martemucci",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "steam": {
+    "appId": 480,
+    "overlay": true
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win --x64",
+    "dist:mac": "electron-builder --mac --universal",
+    "dist:linux": "electron-builder --linux --x64",
+    "dist:store": "electron-builder --win appx --x64"
+  },
+  "dependencies": {
+    "steamworks.js": "^0.4.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.supertelemurgia.game",
+    "productName": "SuperTeleMurgia",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "game/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**/*"
+    ],
+    "win": {
+      "target": "dir",
+      "icon": "build/icon.png"
+    },
+    "mac": {
+      "target": "dir",
+      "icon": "build/icon.png",
+      "category": "public.app-category.adventure-games"
+    },
+    "linux": {
+      "target": "dir",
+      "icon": "build/icon.png",
+      "category": "Game"
+    },
+    "appx": {
+      "identityName": "PASTE_FROM_PARTNER_CENTER.SuperTeleMurgia",
+      "publisher": "CN=PASTE-FROM-PARTNER-CENTER",
+      "publisherDisplayName": "Vincenzo Martemucci",
+      "displayName": "SuperTeleMurgia",
+      "applicationId": "SuperTeleMurgia",
+      "backgroundColor": "#5a4a86",
+      "languages": [
+        "it-IT"
+      ]
+    }
+  }
+}

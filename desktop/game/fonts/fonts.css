@@ -1,0 +1,8 @@
+/* Bundled fonts (SIL Open Font License 1.1): Bitter and Fira Sans */
+@font-face{font-family:'Bitter';src:url('Bitter.ttf') format('truetype');font-weight:100 900;font-style:normal}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-Medium.ttf') format('truetype');font-weight:500;font-style:normal}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-SemiBold.ttf') format('truetype');font-weight:600;font-style:normal}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-Bold.ttf') format('truetype');font-weight:700;font-style:normal}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-ExtraBold.ttf') format('truetype');font-weight:800;font-style:normal}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-SemiBoldItalic.ttf') format('truetype');font-weight:600;font-style:italic}
+@font-face{font-family:'Fira Sans';src:url('FiraSans-BoldItalic.ttf') format('truetype');font-weight:700;font-style:italic}
