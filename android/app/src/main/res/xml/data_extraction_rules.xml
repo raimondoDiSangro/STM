@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Saves and trophies live in the WebView storage: back them up and move them to a new phone. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="root" path="app_webview/" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="root" path="app_webview/" />
+    </device-transfer>
+</data-extraction-rules>

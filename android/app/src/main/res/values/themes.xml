@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.STM" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/stm_night</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/stm_night</item>
+        <item name="android:navigationBarColor">@color/stm_night</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

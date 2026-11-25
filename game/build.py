@@ -9,8 +9,9 @@ Outputs (all generated, not committed):
   dist/dev/game.js         same script on its own, for `node --check`
   desktop/game/index.html  Steam / Electron build (bundled offline fonts)
   launcher/game.html       page embedded in the lightweight Windows .exe
+  android/app/src/main/assets/game/   Android app (touch build, bundled offline fonts)
 """
-import os, pathlib
+import os, pathlib, shutil
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / 'game' / 'src'
@@ -61,4 +62,7 @@ write(ROOT / 'dist' / 'dev' / 'index.html', page(body + debug))
 write(ROOT / 'dist' / 'dev' / 'game.js', wrap(body + debug))
 write(ROOT / 'desktop' / 'game' / 'index.html', page(body, local_fonts=True))
 write(ROOT / 'launcher' / 'game.html', page(body))
+AND = ROOT / 'android' / 'app' / 'src' / 'main' / 'assets' / 'game'
+write(AND / 'index.html', page(body, local_fonts=True))
+shutil.copytree(ROOT / 'desktop' / 'game' / 'fonts', AND / 'fonts', dirs_exist_ok=True)
 print('Done.')

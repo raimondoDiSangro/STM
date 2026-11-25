@@ -12,3 +12,14 @@ steampipe/output/
 __pycache__/
 .DS_Store
 Thumbs.db
+# android build
+android/app/src/main/assets/game/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/keystore.properties
+*.jks
+*.keystore
+upload-key.base64.txt
+tests/shots/
