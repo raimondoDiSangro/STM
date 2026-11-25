@@ -7,7 +7,9 @@ function rect(g, x, y, w, h, f) { g.fillStyle = f; g.fillRect(x, y, w, h); }
 function ell(g, x, y, rx, ry, f, rot = 0) { g.beginPath(); g.ellipse(x, y, Math.abs(rx), Math.abs(ry), rot, 0, Math.PI * 2); g.fillStyle = f; g.fill(); }
 function lg(g, x0, y0, x1, y1, ...cs) { const l = g.createLinearGradient(x0, y0, x1, y1); cs.forEach((c, i) => l.addColorStop(i / (cs.length - 1), c)); return l; }
 function rg(g, x, y, r, ...cs) { const l = g.createRadialGradient(x, y, 0, x, y, r); cs.forEach((c, i) => l.addColorStop(i / (cs.length - 1), c)); return l; }
-function txt(g, s, x, y, font, col, align = 'center', stroke) { g.font = font; g.textAlign = align; if (stroke) { g.lineWidth = stroke[1]; g.strokeStyle = stroke[0]; g.lineJoin = 'round'; g.strokeText(s, x, y); } g.fillStyle = col; g.fillText(s, x, y); }
+// on touch screens the on-screen prompts say "Tocca" instead of "Clic"
+function touchWords(s) { return s.replace('Frecce ← → (o clic) per cambiare corsia', 'Tocca a sinistra o a destra per cambiare corsia').replace(/\bClic\b/g, 'Tocca').replace(/\bclic\b/g, 'tocca'); }
+function txt(g, s, x, y, font, col, align = 'center', stroke) { if (TOUCH.on && typeof s === 'string' && s.indexOf('lic') >= 0) s = touchWords(s); g.font = font; g.textAlign = align; if (stroke) { g.lineWidth = stroke[1]; g.strokeStyle = stroke[0]; g.lineJoin = 'round'; g.strokeText(s, x, y); } g.fillStyle = col; g.fillText(s, x, y); }
 let GRAIN = null;
 function finishBg(g) {
   if (!GRAIN) { GRAIN = document.createElement('canvas'); GRAIN.width = GRAIN.height = 220; const gg = GRAIN.getContext('2d'), id = gg.createImageData(220, 220); for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; } gg.putImageData(id, 0, 0); }

@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>SuperTeleMurgia: La Leggenda dello Sciacquone</title>
 <meta name="description" content="Avventura punta-e-clicca volgare e kitsch nella Murgia: Sciacquone il Pagliaccione contro il Clan dei Pallonari. Gioca gratis nel browser.">
 <meta name="theme-color" content="#120c18">
@@ -16,7 +16,7 @@
    PICTURE: the game canvas fills the screen, letterboxed in deep plum
    COLOUR and TYPE: tufa ochre, luminarie gold, plum night; Eczar + Alegreya Sans
    LAYOUT: one 16:9 stage, centered, scaled to any window */
-html,body{margin:0;height:100%;background:#120c18;overflow:hidden;color-scheme:dark}
+html,body{margin:0;height:100%;background:#120c18;overflow:hidden;color-scheme:dark;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#2a1a2e 0%,#120c18 70%)}
 canvas{display:block;cursor:crosshair;touch-action:none;box-shadow:0 0 60px rgba(0,0,0,.6);image-rendering:auto}
 #rotate{display:none;position:fixed;inset:0;z-index:5;background:#120c18;color:#ffe2a6;font:800 22px "Alegreya Sans","Fira Sans",sans-serif;text-align:center;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px}

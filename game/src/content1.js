@@ -212,7 +212,8 @@ SC.bagno = {
     await say('radio', 'Notizia bomba! Il Clan dei Pallonari si aggiudica il deposito nazionale delle scorie nucleari sotto la Fiera di San Giorgio!');
     await say('radio', 'Don Pallone dichiara: «Porta lavoro. Tre posti. Due sono di mio cognato». Il sindaco: «Valuteremo entro l\'estate prossima».');
     await line('sciac', 'Le scorie a Gravina?! Qua l\'unica scoria autorizzata sono io!', 'Devo uscire da questo bagno e fermare il Clan. Prima però devo uscire da questo bagno.');
-    toast('Clic per camminare e agire. Tasto destro: guarda. ☎ Anna ti aiuta.', 'item');
+    if (TOUCH.on) { toast('Tocca per camminare e agire. Tieni premuto per guardare.', 'item'); toast('La lente in alto a sinistra mostra tutto ciò che puoi toccare.', 'item'); }
+    else toast('Clic per camminare e agire. Tasto destro: guarda. ☎ Anna ti aiuta.', 'item');
   }
 };
 

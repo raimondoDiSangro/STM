@@ -398,7 +398,7 @@ function newGame() {
 const TITLE = {
   full: true,
   init() { this.save = loadSave(); AU.setMood('title', 'piazza'); },
-  btns() { const b = [['new', 'Nuova partita']]; if (this.save) b.unshift(['cont', 'Continua']); b.push(['snd', 'Audio: ' + ['spento', 'solo effetti', 'tutto acceso'][AU.level]]); if (window.steam) b.push(['quit', 'Esci dal gioco']); return b.map((x, i) => ({ id: x[0], t: x[1], r: [490, 420 + i * 62, 300, 52] })); },
+  btns() { const b = [['new', 'Nuova partita']]; if (this.save) b.unshift(['cont', 'Continua']); b.push(['snd', 'Audio: ' + ['spento', 'solo effetti', 'tutto acceso'][AU.level]]); if (window.steam || window.AndroidHost) b.push(['quit', 'Esci dal gioco']); return b.map((x, i) => ({ id: x[0], t: x[1], r: [490, 420 + i * 62, 300, 52] })); },
   draw(g, t) {
     rect(g, 0, 0, W, H, lg(g, 0, 0, 0, H, '#1a2a5a', '#6a5a8a', '#f0a870', '#e8885a'));
     glow(g, 640, 330, 520, 'rgba(255,200,140,.35)');
@@ -419,7 +419,7 @@ const TITLE = {
   click(x, y) {
     for (const b of this.btns()) if (inR(x, y, b.r)) {
       AU.sfx('click');
-      if (b.id === 'snd') { AU.setLevel((AU.level + 2) % 3); return; } if (b.id === 'quit') { window.steam.quit(); return; }
+      if (b.id === 'snd') { AU.setLevel((AU.level + 2) % 3); return; } if (b.id === 'quit') { quitGame(); return; }
       if (b.id === 'new') { this.done(); newGame(); RT.fade = 1; goto('bagno'); return; }
       if (b.id === 'cont') { const s = this.save; this.done(); newGame(); Object.assign(S, { inv: s.inv, flags: s.flags, act: s.act, player: s.player, count: s.count || {} }); RT.fade = 1; const p = s.pos || []; goto(s.scene, p[0], p[1], p[2]); return; }
     }
@@ -429,10 +429,11 @@ const TITLE = {
 function showTitle() { RT.fade = 1; S.scene = null; runMode(TITLE); fadeTo(0, 2); }
 async function menuScreen() {
   const opts = ['Riprendi', 'Torna al titolo (la partita è salvata)', 'Ricomincia da capo'];
-  if (window.steam) opts.push('Schermo intero / finestra', 'Esci dal gioco (la partita è salvata)');
-  const c = await choose(opts);
-  if (c === 3) { window.steam.toggleFullscreen(); return; }
-  if (c === 4) { save(); window.steam.quit(); return; }
+  if (window.steam) opts.push('Schermo intero / finestra');
+  if (window.steam || window.AndroidHost) opts.push('Esci dal gioco (la partita è salvata)');
+  const c = await choose(opts), pickd = opts[c];
+  if (pickd === 'Schermo intero / finestra') { window.steam.toggleFullscreen(); return; }
+  if (pickd && pickd.startsWith('Esci')) { quitGame(); return; }
   if (c === 1) { save(); await fadeTo(1, 4); showTitle(); }
   if (c === 2) { const d = await choose(['No, continuo a giocare', 'Sì, ricomincia dal bagno della Fiera']); if (d === 1) { try { localStorage.removeItem('stm_save'); } catch (e) {} await fadeTo(1, 4); newGame(); goto('bagno'); } }
 }

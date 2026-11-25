@@ -10,6 +10,15 @@ const RT = {
   speech: null, dlg: null, mode: null, fade: 1, fadeTo: 1, fadeRes: null, fadeSpd: 4,
   toasts: [], t: 0, banner: null, hud: null, invOff: 0, uiHover: null, started: false
 };
+// ---------- touch ----------
+// TOUCH.on switches the whole game to the phone/tablet layout: probe-and-release taps, hold to look,
+// a hotspot-reveal lens, big dialog buttons and larger text. It follows the last input device used.
+const TOUCH = { on: !!window.AndroidHost || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches), p: null, fsTried: false };
+const REVEAL_R = [10, 10, 80, 80];
+function haptic(strong) {
+  try { if (window.AndroidHost && AndroidHost.haptic) AndroidHost.haptic(strong ? 1 : 0); else if (TOUCH.on && navigator.vibrate) navigator.vibrate(strong ? 24 : 8); } catch (e) {}
+}
+function quitGame() { save(); try { if (window.steam) window.steam.quit(); else if (window.AndroidHost) AndroidHost.quit(); } catch (e) {} }
 const rand = a => a[Math.floor(Math.random() * a.length)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -59,7 +68,7 @@ function resize() {
   const box = document.getElementById('wrap');
   const s = Math.min(box.clientWidth / W, box.clientHeight / H);
   cv.style.width = Math.floor(W * s) + 'px'; cv.style.height = Math.floor(H * s) + 'px';
-  const d = clamp((window.devicePixelRatio || 1) * s, 0.75, 2);
+  const d = clamp((window.devicePixelRatio || 1) * s, 0.75, TOUCH.on ? 1.75 : 2);
   if (Math.abs(d - DPR) > 0.05 || !cv.width) { DPR = d; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); BG = null; }
 }
 window.addEventListener('resize', resize);
@@ -157,6 +166,23 @@ function pick(x, y) {
   if (best) { const h = best; return { kind: 'hot', id: h.id, ref: h, name: typeof h.name === 'function' ? h.name() : h.name, at: h.at ? (typeof h.at === 'function' ? h.at() : h.at) : null }; }
   return null;
 }
+// fingers are fat: on touch, look a little around the tap point before giving up
+function pickNear(x, y) {
+  let h = pick(x, y); if (h || !TOUCH.on) return h;
+  for (const r of [16, 30, 44]) for (let a = 0; a < 8; a++) {
+    const yy = y + Math.sin(a * Math.PI / 4) * r; if (yy >= SH) continue;
+    h = pick(x + Math.cos(a * Math.PI / 4) * r, yy); if (h) return h;
+  }
+  return null;
+}
+// every hotspot and character currently on screen, for the reveal lens
+function allHits() {
+  const out = [], sc = SC[S.scene]; if (!sc) return out;
+  for (const a of Object.values(RT.actors)) if (a.id !== S.player && !a.hidden && !ACTORS[a.id].noPick) { const r = actorRect(a); out.push({ name: ACTORS[a.id].name, cx: r[0] + r[2] / 2, cy: r[1] + Math.min(r[3] * 0.35, 70), exit: false }); }
+  for (const h of (sc.hot || [])) if (!h.cond || h.cond()) { const r = hotRect(h); if (!r) continue; out.push({ name: typeof h.name === 'function' ? h.name() : h.name, cx: r[0] + r[2] / 2, cy: clamp(r[1] + r[3] / 2, 30, SH - 30), exit: !!h.exit }); }
+  return out;
+}
+function reveal() { RT.reveal = RT.t; AU.sfx('click'); haptic(); }
 
 // ---------- verbs ----------
 const VERBS = [['guarda', 'Guarda'], ['prendi', 'Prendi'], ['usa', 'Usa'], ['parla', 'Parla'], ['dai', 'Dai'], ['sciacqua', 'Sciacqua']];
@@ -246,18 +272,62 @@ function runMode(m) { return new Promise(res => { m.done = v => { RT.mode = null
 
 // ---------- input ----------
 function toLocal(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
-cv.addEventListener('pointermove', e => { const [x, y] = toLocal(e); RT.mouse.x = x; RT.mouse.y = y; if (RT.mode && RT.mode.move) RT.mode.move(x, y); else updateHover(); });
+function revealVisible() { return TOUCH.on && !RT.mode && !!S.scene && !RT.dlg; }
+cv.addEventListener('pointermove', e => {
+  const [x, y] = toLocal(e);
+  if (e.pointerType !== 'mouse') {
+    const p = TOUCH.p; if (!p || p.id !== e.pointerId) return;
+    RT.mouse.x = x; RT.mouse.y = y;
+    if (!p.done && Math.hypot(x - p.x0, y - p.y0) > 14) p.moved = true;
+    if (RT.mode && RT.mode.move) RT.mode.move(x, y); else updateHover();
+    return;
+  }
+  RT.mouse.x = x; RT.mouse.y = y; if (RT.mode && RT.mode.move) RT.mode.move(x, y); else updateHover();
+});
 cv.addEventListener('contextmenu', e => e.preventDefault());
 cv.addEventListener('pointerdown', e => {
-  const [x, y] = toLocal(e); RT.mouse.x = x; RT.mouse.y = y; RT.lastClick = RT.t;
+  const [x, y] = toLocal(e);
   AU.init();
-  if (RT.mode) { RT.mode.click && RT.mode.click(x, y, e.button); return; }
+  if (e.pointerType === 'mouse') { TOUCH.on = false; RT.mouse.x = x; RT.mouse.y = y; RT.lastClick = RT.t; return tap(x, y, e.button); }
+  // touch / pen
+  e.preventDefault();
+  if (!TOUCH.on) { TOUCH.on = true; resize(); }
+  if (!window.AndroidHost && !TOUCH.fsTried) { TOUCH.fsTried = true; try { const r = document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); if (r && r.then) r.then(() => { try { screen.orientation.lock('landscape').catch(() => {}); } catch (er) {} }).catch(() => {}); } catch (er) {} }
+  if (TOUCH.p) return; // ignore extra fingers
+  try { cv.setPointerCapture(e.pointerId); } catch (er) {}
+  RT.mouse.x = x; RT.mouse.y = y; RT.lastClick = RT.t;
+  const p = TOUCH.p = { id: e.pointerId, x0: x, y0: y, t0: RT.t, done: false, moved: false };
+  // things that react the moment the finger lands
+  if (RT.mode) { p.done = true; if (RT.mode.move) RT.mode.move(x, y); if (RT.mode.click) RT.mode.click(x, y, 0); return; }
+  if (RT.speech) { p.done = true; skipSpeech(); return; }
+  if (revealVisible() && inR(x, y, REVEAL_R)) { p.done = true; reveal(); return; }
+  updateHover();
+});
+function touchEnd(e, cancel) {
+  const p = TOUCH.p; if (!p || p.id !== e.pointerId) return;
+  TOUCH.p = null;
+  if (!p.done && !cancel) { const [x, y] = toLocal(e); RT.mouse.x = x; RT.mouse.y = y; RT.lastClick = RT.t; tap(x, y, 0); }
+  RT.mouse.x = -1; RT.mouse.y = -1; updateHover();
+}
+cv.addEventListener('pointerup', e => { if (e.pointerType !== 'mouse') touchEnd(e, false); });
+cv.addEventListener('pointercancel', e => { if (e.pointerType !== 'mouse') touchEnd(e, true); });
+// hold a finger still for half a second = Guarda (also on inventory items)
+function checkLongPress() {
+  const p = TOUCH.p; if (!p || p.done || p.moved || RT.t - p.t0 < 0.5) return;
+  if (RT.mode || RT.speech || RT.dlg || RT.busy) return;
+  if (p.y0 >= SH) { const u = uiAt(p.x0, p.y0); if (u && u.t === 'inv') { p.done = true; haptic(1); run(() => invAct('guarda', u.id)); } return; }
+  const hit = pickNear(p.x0, p.y0);
+  if (hit) { p.done = true; haptic(1); run(() => doAct('guarda', hit)); }
+}
+function tap(x, y, button) {
+  if (RT.mode) { RT.mode.click && RT.mode.click(x, y, button); return; }
   if (RT.speech) { skipSpeech(); return; }
-  if (RT.dlg) { const i = dlgIndexAt(x, y); if (i >= 0) RT.dlg.res(i); return; }
+  if (RT.dlg) { const i = dlgIndexAt(x, y); if (i >= 0) { haptic(); RT.dlg.res(i); } return; }
   if (RT.busy) return;
-  if (y >= SH) return uiClick(x, y, e.button);
+  if (y >= SH) return uiClick(x, y, button);
   updateHover();
   const hit = RT.hover;
+  const e = { button };
   if (e.button === 2) { if (hit) run(() => doAct('guarda', hit)); return; }
   if (hit) {
     const v = RT.verb || defaultVerb(hit); const it = RT.item;
@@ -268,10 +338,25 @@ cv.addEventListener('pointerdown', e => {
     const pl = RT.actors[S.player];
     if (pl) walkTo(S.player, x, y);
   }
-});
+}
+// Android back button (called by the app), also handy for tests
+window.__stmBack = function () {
+  try {
+    RT.lastClick = RT.t;
+    if (RT.mode) { if (RT.mode === TITLE) return quitGame(); if (RT.mode.key) RT.mode.key('Escape'); return; }
+    if (RT.speech) return skipSpeech();
+    if (RT.dlg) return;
+    if (RT.verb || RT.item) { RT.verb = null; RT.item = null; return; }
+    if (!RT.busy && S.scene) run(menuScreen);
+  } catch (e) { console.error(e); }
+};
+window.__stmPause = function () { save(); try { if (AU.c && AU.c.state === 'running') AU.c.suspend(); } catch (e) {} };
+window.__stmResume = function () { try { if (AU.c && AU.c.state !== 'running') AU.c.resume(); } catch (e) {} last = performance.now(); };
+document.addEventListener('visibilitychange', () => { if (document.hidden) window.__stmPause(); else window.__stmResume(); });
 window.addEventListener('keydown', e => {
   AU.init();
   if (RT.mode && RT.mode.key) { RT.mode.key(e.key); e.preventDefault(); return; }
+  if ((e.key === 'h' || e.key === 'H' || e.key === 'Tab') && !RT.dlg && S.scene) { RT.reveal = RT.t; e.preventDefault(); return; }
   if (e.key === ' ' || e.key === 'Escape' || e.key === '.') { skipSpeech(); e.preventDefault(); }
   const m = { g: 'guarda', p: 'prendi', u: 'usa', t: 'parla', d: 'dai', s: 'sciacqua' }[e.key.toLowerCase()];
   if (m && !RT.busy && !RT.dlg) { RT.verb = m; RT.item = null; }
@@ -279,9 +364,9 @@ window.addEventListener('keydown', e => {
 function updateHover() {
   const { x, y } = RT.mouse;
   RT.uiHover = null;
-  if (RT.mode || !S.scene || !SC[S.scene]) { RT.hover = null; return; }
+  if (RT.mode || !S.scene || !SC[S.scene] || x < 0) { RT.hover = null; return; }
   if (y >= SH) { RT.hover = null; RT.uiHover = uiAt(x, y); return; }
-  RT.hover = RT.busy ? null : pick(x, y);
+  RT.hover = RT.busy ? null : pickNear(x, y);
 }
 
 // ---------- UI layout ----------
@@ -297,17 +382,27 @@ function uiButtons() {
   else b.push(['menu', 'Menu']);
   return b;
 }
+function uiTargets() {
+  const t = [];
+  for (let i = 0; i < 6; i++) t.push([UI.verb(i), { t: 'verb', v: VERBS[i][0] }]);
+  for (let i = 0; i < 10; i++) { const id = S.inv[RT.invOff + i]; if (id) t.push([UI.slot(i), { t: 'inv', id }]); }
+  t.push([UI.up, { t: 'up' }], [UI.down, { t: 'down' }]);
+  uiButtons().forEach((b, i) => t.push([UI.btn(i), { t: 'btn', id: b[0] }]));
+  return t;
+}
 function uiAt(x, y) {
-  if (RT.dlg) return null;
-  for (let i = 0; i < 6; i++) if (inR(x, y, UI.verb(i))) return { t: 'verb', v: VERBS[i][0] };
-  for (let i = 0; i < 10; i++) if (inR(x, y, UI.slot(i))) { const id = S.inv[RT.invOff + i]; if (id) return { t: 'inv', id }; }
-  if (inR(x, y, UI.up)) return { t: 'up' }; if (inR(x, y, UI.down)) return { t: 'down' };
-  const bs = uiButtons(); for (let i = 0; i < bs.length; i++) if (inR(x, y, UI.btn(i))) return { t: 'btn', id: bs[i][0] };
-  return null;
+  if (RT.dlg || x < 0) return null;
+  const ts = uiTargets();
+  for (const [r, u] of ts) if (inR(x, y, r)) return u;
+  if (!TOUCH.on) return null;
+  // on touch, a near miss still counts: nearest button within 34px
+  let best = null, bd = 34;
+  for (const [r, u] of ts) { const dx = Math.max(r[0] - x, 0, x - r[0] - r[2]), dy = Math.max(r[1] - y, 0, y - r[1] - r[3]), d = Math.hypot(dx, dy); if (d < bd) { bd = d; best = u; } }
+  return best;
 }
 function uiClick(x, y, btn) {
   const u = uiAt(x, y); if (!u) return;
-  AU.sfx('click');
+  AU.sfx('click'); haptic();
   if (u.t === 'inv' && btn === 2) return run(() => invAct('guarda', u.id));
   if (u.t === 'verb') { RT.verb = RT.verb === u.v ? null : u.v; RT.item = null; return; }
   if (u.t === 'up') { RT.invOff = Math.max(0, RT.invOff - 5); return; }
@@ -342,8 +437,14 @@ function sentence() {
 }
 
 // ---------- dialog option hit ----------
+function dlgRow(i) {
+  const n = RT.dlg.list.length, rh = Math.min(64, Math.floor((H - 60) / n));
+  return [30, H - 12 - n * rh + i * rh, W - 60, rh - 8];
+}
 function dlgIndexAt(x, y) {
-  if (!RT.dlg || y < SH + 18) return -1;
+  if (!RT.dlg || x < 0) return -1;
+  if (TOUCH.on) { for (let i = 0; i < RT.dlg.list.length; i++) if (inR(x, y, dlgRow(i))) return i; return -1; }
+  if (y < SH + 18) return -1;
   const i = Math.floor((y - SH - 22) / 27);
   return i >= 0 && i < RT.dlg.list.length && x > 20 && x < 1130 ? i : -1;
 }
@@ -359,6 +460,7 @@ function update(dt) {
     if (RT.fade === RT.fadeTo && RT.fadeRes) { const r = RT.fadeRes; RT.fadeRes = null; r(); }
   }
   if (RT.mode) { RT.mode.update && RT.mode.update(dt); return; }
+  checkLongPress();
   // speech
   if (RT.speech && RT.t >= RT.speech.end) { const sp = RT.speech; RT.speech = null; const a = RT.actors[sp.id]; if (a) a.talk = 0; sp.res(); }
   // actors
@@ -401,9 +503,11 @@ function render() {
   list.sort((a, b) => a.y - b.y).forEach(o => o.d());
   if (sc.fg) sc.fg(ctx, RT.t);
   ctx.restore();
+  drawReveal(ctx);
   drawSpeech(ctx);
   if (RT.hud) RT.hud(ctx, RT.t);
   drawUI(ctx);
+  drawFingerLabel(ctx);
   drawBanner(ctx);
   if (RT.mode && RT.mode.draw) RT.mode.draw(ctx, RT.t);
   drawToasts(); drawFade();
@@ -437,13 +541,71 @@ function wrapText(g, text, maxW) {
 function drawSpeech(g) {
   const sp = RT.speech; if (!sp) return;
   const d = ACTORS[sp.id] || { color: '#fff' };
-  g.save(); g.font = '800 25px "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
-  const lines = wrapText(g, sp.text, 560);
+  const T = TOUCH.on, fs = T ? 31 : 25, lh = T ? 35 : 29, mw = T ? 660 : 560;
+  g.save(); g.font = '800 ' + fs + 'px "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
+  const lines = wrapText(g, sp.text, mw);
   let x = W / 2, y = 70;
   const a = RT.actors[sp.id];
-  if (a && !a.hidden) { const r = actorRect(a); x = clamp(a.x, 300, W - 300); y = Math.max(40 + lines.length * 0, r[1] - 18 - (lines.length - 1) * 29); y = Math.max(y, 36); }
-  else if (d.box) { g.fillStyle = 'rgba(15,10,24,.78)'; rr(g, W / 2 - 330, 24, 660, 26 + lines.length * 30, 12); g.fill(); y = 56; }
-  lines.forEach((l, i) => { const yy = y + i * 29; g.lineWidth = 6; g.strokeStyle = 'rgba(10,6,16,.92)'; g.strokeText(l, x, yy); g.fillStyle = d.color || '#fff'; g.fillText(l, x, yy); });
+  if (a && !a.hidden) { const r = actorRect(a); x = clamp(a.x, mw / 2 + 20, W - mw / 2 - 20); y = Math.max(40, r[1] - 18 - (lines.length - 1) * lh); y = Math.max(y, fs + 11); }
+  else if (d.box) { g.fillStyle = 'rgba(15,10,24,.78)'; rr(g, W / 2 - mw / 2 - 50, 24, mw + 100, 26 + lines.length * (lh + 1), 12); g.fill(); y = 56; }
+  lines.forEach((l, i) => { const yy = y + i * lh; g.lineWidth = 6; g.strokeStyle = 'rgba(10,6,16,.92)'; g.strokeText(l, x, yy); g.fillStyle = d.color || '#fff'; g.fillText(l, x, yy); });
+  g.restore();
+}
+// ---------- touch drawing ----------
+function drawTouchDialog(g) {
+  const n = RT.dlg.list.length, top = dlgRow(0)[1];
+  const hi = TOUCH.p ? dlgIndexAt(RT.mouse.x, RT.mouse.y) : -1;
+  g.save();
+  g.fillStyle = 'rgba(12,8,20,.9)'; rr(g, 14, top - 16, W - 28, H - top + 10, 16); g.fill();
+  g.strokeStyle = '#c98a3c'; g.lineWidth = 3; g.stroke();
+  RT.dlg.list.forEach((o, i) => {
+    const r = dlgRow(i);
+    g.fillStyle = i === hi ? '#c4762c' : '#33243a'; rr(g, r[0], r[1], r[2], r[3], 11); g.fill();
+    let fs = 25; g.font = '700 ' + fs + 'px "Alegreya Sans", "Fira Sans", sans-serif';
+    while (fs > 16 && g.measureText(o.t).width > r[2] - 70) { fs--; g.font = '700 ' + fs + 'px "Alegreya Sans", "Fira Sans", sans-serif'; }
+    g.textAlign = 'left'; g.fillStyle = i === hi ? '#fff3d6' : '#ecdcc0'; g.fillText('› ' + o.t, r[0] + 22, r[1] + r[3] / 2 + fs * 0.36);
+  });
+  g.restore();
+}
+function drawReveal(g) {
+  if (!S.scene || RT.mode) return;
+  const T = RT.reveal != null ? RT.t - RT.reveal : 99;
+  if (T < 3.4) {
+    const a = Math.min(1, T * 6, (3.4 - T) * 2.5);
+    g.save(); g.globalAlpha = a; g.font = '800 19px "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center';
+    const placed = [];
+    for (const h of allHits()) {
+      const pr = 11 + Math.sin(RT.t * 6) * 3;
+      g.beginPath(); g.arc(h.cx, h.cy, pr + 6, 0, Math.PI * 2); g.fillStyle = 'rgba(255,215,106,.25)'; g.fill();
+      g.beginPath(); g.arc(h.cx, h.cy, pr * 0.55, 0, Math.PI * 2); g.fillStyle = h.exit ? '#7ad0ff' : '#ffd76a'; g.fill();
+      const label = (h.exit ? '➜ ' : '') + h.name, w = g.measureText(label).width + 18;
+      const lx = clamp(h.cx, w / 2 + 6, W - w / 2 - 6); let ly = h.cy + 34 > SH - 6 ? h.cy - 22 : h.cy + 34;
+      // nudge labels apart so neighbours stay readable
+      const hitL = y => placed.some(q => Math.abs(q[0] - lx) < (q[1] + w) / 2 + 4 && Math.abs(q[2] - y) < 30);
+      for (const dy of [0, 30, -30, 60, -60, 90]) { const y = clamp(ly + dy, 26, SH - 8); if (!hitL(y)) { ly = y; break; } }
+      placed.push([lx, w, ly]);
+      g.fillStyle = 'rgba(15,10,24,.85)'; rr(g, lx - w / 2, ly - 20, w, 28, 8); g.fill();
+      g.fillStyle = h.exit ? '#bfe8ff' : '#ffe9b0'; g.fillText(label, lx, ly);
+    }
+    g.restore();
+  }
+  if (!revealVisible()) return;
+  const [rx, ry, rw] = REVEAL_R, cx = rx + rw / 2, cy = ry + rw / 2, on = T < 3.4;
+  g.save();
+  g.beginPath(); g.arc(cx, cy, rw / 2 - 6, 0, Math.PI * 2); g.fillStyle = on ? 'rgba(196,118,44,.9)' : 'rgba(20,14,30,.55)'; g.fill();
+  g.lineWidth = 3; g.strokeStyle = 'rgba(255,215,106,.8)'; g.stroke();
+  g.lineWidth = 5; g.strokeStyle = '#ffe2a6'; g.beginPath(); g.arc(cx - 5, cy - 5, 13, 0, Math.PI * 2); g.stroke();
+  g.lineCap = 'round'; g.beginPath(); g.moveTo(cx + 5, cy + 5); g.lineTo(cx + 15, cy + 15); g.stroke();
+  g.restore();
+}
+function drawFingerLabel(g) {
+  const p = TOUCH.p; if (!p || p.done || !RT.hover || RT.mouse.y >= SH) return;
+  const t = sentence(); if (!t) return;
+  g.save(); g.font = '800 24px "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center';
+  const w = g.measureText(t).width + 30, x = clamp(RT.mouse.x, w / 2 + 8, W - w / 2 - 8), y = RT.mouse.y > 130 ? RT.mouse.y - 92 : RT.mouse.y + 70;
+  g.fillStyle = 'rgba(15,10,24,.88)'; rr(g, x - w / 2, y - 26, w, 38, 10); g.fill();
+  g.strokeStyle = '#c98a3c'; g.lineWidth = 2; g.stroke();
+  g.fillStyle = '#ffe2a6'; g.fillText(t, x, y + 2);
   g.restore();
 }
 function drawUI(g) {
@@ -451,8 +613,9 @@ function drawUI(g) {
   const pg = g.createLinearGradient(0, SH, 0, H); pg.addColorStop(0, '#2a1d2e'); pg.addColorStop(1, '#160f1b');
   g.fillStyle = pg; g.fillRect(0, SH, W, H - SH);
   g.fillStyle = '#c98a3c'; g.fillRect(0, SH, W, 3);
-  g.font = '700 21px "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center'; g.fillStyle = '#ffe2a6';
+  g.font = (TOUCH.on ? '800 23px' : '700 21px') + ' "Alegreya Sans", "Fira Sans", sans-serif'; g.textAlign = 'center'; g.fillStyle = '#ffe2a6';
   g.fillText(sentence(), W / 2, SH + 24);
+  if (RT.dlg && TOUCH.on) { g.restore(); drawTouchDialog(g); return; }
   if (RT.dlg) {
     g.textAlign = 'left'; g.font = '700 22px "Alegreya Sans", "Fira Sans", sans-serif';
     const hi = dlgIndexAt(RT.mouse.x, RT.mouse.y);
