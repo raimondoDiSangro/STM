@@ -18,11 +18,12 @@ A vulgar, tacky, very Southern Italian point-and-click adventure. Sciacquone the
 | `game/src/` | The whole game: engine, audio, art and four content files (one per act group) |
 | `game/build.py` | Builds every version of the game from `game/src` |
 | `desktop/` | Electron wrapper for Steam and the Microsoft Store (achievements, fullscreen, offline fonts) |
+| `android/` | Android app for Google Play: offline WebView wrapper with touch controls, haptics and the back button |
 | `launcher/` | Tiny Go program that turns the game into a single Windows `.exe` |
 | `steampipe/` | Scripts to upload builds to Steam |
 | `store/` | Store art, screenshots, achievement icons and store text |
 | `packaging/` | Read-me files shipped inside the download zips |
-| `tests/` | Automated playthrough that plays the whole game to the ending |
+| `tests/` | Automated playthrough to the ending, plus a touch test on an emulated Android phone |
 | `.github/workflows/` | Cloud builds, tests, releases and GitHub Pages |
 
 ## Build
@@ -101,6 +102,22 @@ Cloud saves: Steamworks → Steam Cloud → Auto-Cloud, root `WinAppDataRoaming`
 1. Free individual developer account at Partner Center; reserve the name.
 2. Copy the package identity values into `desktop/package.json` → `build.appx`.
 3. `cd desktop && npm install && npm run dist:store`, then upload the `.appx`.
+
+## Android and Google Play
+
+The phone version is the same game with a touch layer that switches on by itself on any touch screen
+(also in mobile browsers): tap to act, hold to look, drag your finger to read object names, a lens
+button that reveals every hotspot, big dialogue buttons, larger text, haptics, and Back = menu.
+
+- **Cloud build (easiest):** push to GitHub. The *Android* workflow builds `app-debug.apk`
+  (install it on your phone to test) and `app-release.aab` (upload it to Google Play).
+- **Signing:** run `android/make-upload-key.sh` (or `.ps1` on Windows) once, then add the four
+  `STM_*` secrets it prints to the repository. Back up `upload-key.jks`; never commit it.
+- **Local build:** install Android Studio, run `python game/build.py`, then open the `android/`
+  folder, or run `cd android && ./gradlew assembleDebug`.
+- **Store kit:** `store/googleplay/` has the listing text (Italian and English), icon, feature
+  graphic, phone screenshots and the answers for Play Console's App content forms.
+- Package name: `com.supertelemurgia.game` (change it in `android/app/build.gradle` before the first upload if you want another; it can never change afterwards).
 
 ## License
 
