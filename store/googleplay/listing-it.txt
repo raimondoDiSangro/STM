@@ -1,0 +1,46 @@
+GOOGLE PLAY — SCHEDA DELLO STORE (italiano, lingua predefinita: it-IT)
+=====================================================================
+
+Nome dell'app (max 30 caratteri)
+SuperTeleMurgia: Sciacquone
+
+Descrizione breve (max 80 caratteri)
+Punta-e-clicca nella Murgia: un pagliaccio contro il Clan dei Pallonari.
+
+Descrizione completa (max 4000 caratteri)
+Gravina in Puglia. Il sindaco inaugura la stessa rotonda per l'undicesima volta, il treno per Bari non passa da dieci anni e il Clan dei Pallonari vuole seppellire le scorie sotto la Fiera di San Giorgio.
+
+Solo un uomo può fermarli: Sciacquone il Pagliaccione, armato di sturalavandini, tutù rosa e un senso civico fuori norma.
+
+SuperTeleMurgia è un'avventura punta-e-clicca vecchia scuola, volgare, kitsch e piena d'affetto per la Murgia. Esplori Gravina, Altamura e Matera, parli con tutti, raccogli oggetti assurdi e risolvi enigmi con la logica della burocrazia italiana.
+
+★ Quattro atti, tre finali e 14 trofei
+★ Gravina, Altamura, i Sassi di Matera, le grotte sotto la Fiera e una sala d'attesa dell'ospedale da cui non si esce
+★ Duello di pane contro Mastro Panetto, guida sulla SS96 tra buche e autovelox, videochiamata con la diaspora gravinese
+★ Sciacquone e Santino giocabili, con il loro inventario e le loro battute
+★ Musica generativa che cambia in ogni luogo e non si ripete mai
+★ Anna al telefono ti dà un indizio quando sei bloccato
+
+PENSATO PER IL TOUCH
+• Tocca per camminare e agire, tieni premuto per guardare
+• Trascina il dito: il nome di ogni oggetto appare sopra il polpastrello
+• La lente mostra tutto ciò che puoi toccare: niente caccia al pixel
+• Pulsanti e dialoghi grandi, testo più leggibile, vibrazione leggera
+• Il tasto Indietro apre il menu; la partita si salva da sola
+
+Nessuna pubblicità. Nessun acquisto in-app. Nessuna connessione richiesta. Nessun dato raccolto. Paghi una volta, giochi per sempre.
+
+Lingua: italiano.
+
+Satira di pura fantasia. Ogni riferimento a fatti o persone reali è puramente casuale. Se ti offendi, sei tu il pagliaccio.
+
+
+Note di rilascio 1.0.0 (max 500 caratteri)
+Prima uscita su Android! Comandi touch completi, lente per gli oggetti, dialoghi giganti e salvataggio automatico. Sciacquone vi aspetta in piazza.
+
+
+Categoria: Giochi > Avventura
+Tag suggeriti: Avventura, Punta e clicca, Umorismo, Storia, Offline
+Email di contatto: (la tua email pubblica di sviluppatore)
+Sito web: https://raimondodisangro.github.io/supertelemurgia/
+Informativa privacy: https://raimondodisangro.github.io/supertelemurgia/privacy.html

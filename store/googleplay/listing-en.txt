@@ -1,0 +1,42 @@
+GOOGLE PLAY — STORE LISTING (English translation, en-US)
+========================================================
+
+App name (max 30 characters)
+SuperTeleMurgia: Sciacquone
+
+Short description (max 80 characters)
+Italian point-and-click satire: a clown versus the Clan dei Pallonari.
+
+Full description (max 4000 characters)
+Gravina in Puglia, southern Italy. The mayor opens the same roundabout for the eleventh time, the train to Bari hasn't run in ten years, and the Clan dei Pallonari wants to bury toxic waste under the San Giorgio fair.
+
+Only one man can stop them: Sciacquone the Clown, armed with a toilet plunger, a pink tutu and an oversized sense of civic duty.
+
+SuperTeleMurgia is an old-school point-and-click adventure: crude, tacky and full of love for the Murgia. Explore Gravina, Altamura and Matera, talk to everyone, collect absurd items and solve puzzles with the logic of Italian bureaucracy.
+
+★ Four acts, three endings and 14 trophies
+★ Gravina, Altamura, the Sassi of Matera, caves under the fair and a hospital waiting room you never leave
+★ A bread duel, a pothole-and-speed-camera drive on the SS96, a video call with the emigrant diaspora
+★ Two playable heroes, Sciacquone and Santino
+★ Generative music that changes in every location and never repeats
+★ Anna on the phone gives you a hint whenever you are stuck
+
+BUILT FOR TOUCH
+• Tap to walk and act, hold to look
+• Slide your finger: every object's name floats above it
+• The magnifying glass reveals everything you can touch: no pixel hunting
+• Big buttons and dialogue choices, larger text, light haptics
+• Back opens the menu; the game saves itself
+
+No ads. No in-app purchases. Works offline. Collects no data. Pay once, play forever.
+
+LANGUAGE: the game is in Italian only.
+
+Pure satire and fiction. Any resemblance to real people or events is coincidental.
+
+
+Release notes 1.0.0 (max 500 characters)
+First Android release! Full touch controls, a magnifying glass for hotspots, giant dialogue buttons and autosave.
+
+
+Category: Games > Adventure
