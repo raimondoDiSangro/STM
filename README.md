@@ -7,8 +7,8 @@ A crude, tacky, very Southern Italian point-and-click adventure. Sciacquone the 
 ![SuperTeleMurgia](store/screenshot_02_piazza.png)
 
 - Gravina, Altamura and Matera across four acts
-- About 2 hours, 3 endings, 14 trophies, and a hint line (Anna)
-- Music generated live, so it never repeats
+- 3 endings, 14 trophies, and a hint line (Anna)
+- Music generated live
 - Mouse or touch: works on PC, Mac, phones and tablets
 - Italian only
 
