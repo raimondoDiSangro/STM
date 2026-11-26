@@ -2,7 +2,7 @@
 
 A crude, tacky, very Southern Italian point-and-click adventure. Sciacquone the clown, armed with a plunger, has to save Gravina from the Clan dei Pallonari.
 
-**▶ [Play the free demo in your browser](https://raimondodisangro.github.io/STM/)**
+**▶ [Play the game in your browser](https://raimondodisangro.github.io/STM/)**
 
 ![SuperTeleMurgia](store/screenshot_02_piazza.png)
 
